@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">ToDoCompose</string>
 
+    <string name="add_task_please">오늘 할 일은 무엇인가요?</string>
     <string name="todo_task">할 일</string>
     <string name="done_task">끝낸 일</string>
+    <string name="add_task">할 일 추가</string>
 </resources>
