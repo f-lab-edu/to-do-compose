@@ -15,9 +15,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import flab.eryuksa.todocompose.R
 import flab.eryuksa.todocompose.ui.theme.ToDoComposeTheme
 
@@ -32,13 +33,13 @@ fun TaskComposable(task: Task, onTaskCheckedChange: (Boolean) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = 16.dp,
-                vertical = 8.dp
+                horizontal = dimensionResource(id = R.dimen.margin_16dp),
+                vertical = dimensionResource(id = R.dimen.margin_8dp)
             )
     ) {
         Checkbox(checked = task.isDone, onCheckedChange = onTaskCheckedChange)
-        Spacer(Modifier.padding(horizontal = 8.dp))
-        Text(text = task.title)
+        Spacer(Modifier.padding(horizontal = dimensionResource(id = R.dimen.margin_8dp)))
+        Text(text = task.title, textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None)
     }
 }
 
@@ -51,7 +52,7 @@ fun AllTaskList(todoList: List<Task>, doneList: List<Task>) {
             todoList.isEmpty() && doneList.isNotEmpty() -> DoneList(doneList)
             else -> {
                 TodoList(todoList)
-                Spacer(modifier = Modifier.padding(vertical = 16.dp))
+                Spacer(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.margin_16dp)))
                 DoneList(doneList)
             }
         }
@@ -68,7 +69,7 @@ fun DoneList(doneList: List<Task>) = TaskList(stringResource(R.string.done_task)
 fun TaskList(categoryTitle: String, taskList: List<Task>) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = categoryTitle, style = MaterialTheme.typography.headlineSmall)
-        Spacer(Modifier.padding(vertical = 8.dp))
+        Spacer(Modifier.padding(vertical = dimensionResource(id = R.dimen.margin_8dp)))
         LazyColumn {
             items(taskList) { task ->
                 TaskComposable(task) {}
