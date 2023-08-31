@@ -1,6 +1,6 @@
 package flab.eryuksa.todocompose.ui.tasks
 
-import androidx.compose.foundation.layout.Arrangement
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,20 +22,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import flab.eryuksa.todocompose.R
+import flab.eryuksa.todocompose.ui.theme.Padding
 import flab.eryuksa.todocompose.ui.theme.ToDoComposeTheme
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen() {
     Scaffold(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(Padding.LARGE),
         floatingActionButton = {
             FloatingActionButton(onClick = {}) {
                 Icon(
@@ -50,21 +50,24 @@ fun TasksScreen() {
 }
 
 @Composable
-fun TaskComposable(task: Task, onTaskCheckedChange: (Boolean) -> Unit) {
+fun TaskItem(task: Task, onTaskCheckedChange: (Boolean) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = dimensionResource(id = R.dimen.margin_16dp),
-                vertical = dimensionResource(id = R.dimen.margin_8dp)
+                horizontal = Padding.LARGE,
+                vertical = Padding.MEDIUM
             )
     ) {
-        Checkbox(checked = task.isDone, onCheckedChange = onTaskCheckedChange)
-        Spacer(Modifier.padding(horizontal = dimensionResource(id = R.dimen.margin_8dp)))
+        Checkbox(
+            checked = task.isDone,
+            onCheckedChange = onTaskCheckedChange
+        )
         Text(
             text = task.title,
-            textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None
+            textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None,
+            modifier = Modifier.padding(horizontal = Padding.MEDIUM)
         )
     }
 }
@@ -78,11 +81,13 @@ fun DoneList(doneList: List<Task>) = TaskList(stringResource(R.string.done_task)
 @Composable
 fun TaskList(categoryTitle: String, taskList: List<Task>) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = categoryTitle, style = MaterialTheme.typography.headlineSmall)
-        Spacer(Modifier.padding(vertical = dimensionResource(id = R.dimen.margin_8dp)))
-        LazyColumn {
+        Text(
+            text = categoryTitle,
+            style = MaterialTheme.typography.headlineSmall
+        )
+        LazyColumn(modifier = Modifier.padding(vertical = Padding.MEDIUM)) {
             items(taskList) { task ->
-                TaskComposable(task) {}
+                TaskItem(task) {}
             }
         }
     }
@@ -97,7 +102,7 @@ fun AllTaskList(todoList: List<Task>, doneList: List<Task>) {
             todoList.isEmpty() && doneList.isNotEmpty() -> DoneList(doneList)
             else -> {
                 TodoList(todoList)
-                Spacer(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.margin_16dp)))
+                Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
                 DoneList(doneList)
             }
         }
@@ -106,18 +111,12 @@ fun AllTaskList(todoList: List<Task>, doneList: List<Task>) {
 
 @Composable
 fun NoTask() {
-    Column(
+    Text(
+        text = stringResource(R.string.add_task_please),
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = stringResource(R.string.add_task_please),
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.bodyMedium
+    )
 }
 
 @Preview(heightDp = 500)
@@ -133,7 +132,7 @@ fun TaskComposablePreview() {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-            TaskComposable(
+            TaskItem(
                 Task("할일", "설명", true)
             ) {}
         }
