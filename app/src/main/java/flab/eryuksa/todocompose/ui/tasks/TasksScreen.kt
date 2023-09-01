@@ -1,6 +1,7 @@
 package flab.eryuksa.todocompose.ui.tasks
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,14 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,21 +26,19 @@ import flab.eryuksa.todocompose.ui.theme.Padding
 import flab.eryuksa.todocompose.ui.theme.ToDoComposeTheme
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksScreen() {
-    Scaffold(
-        modifier = Modifier.fillMaxSize().padding(Padding.LARGE),
-        floatingActionButton = {
-            FloatingActionButton(onClick = {}) {
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = stringResource(R.string.add_task)
-                )
+fun TasksScreen(todoList: List<Task>, doneList: List<Task>) {
+    Column(modifier = Modifier.fillMaxSize().padding(all = Padding.LARGE)) {
+        when {
+            todoList.isEmpty() && doneList.isEmpty() -> NoTask()
+            todoList.isNotEmpty() && doneList.isEmpty() -> TodoList(todoList)
+            todoList.isEmpty() && doneList.isNotEmpty() -> DoneList(doneList)
+            else -> {
+                TodoList(todoList)
+                Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
+                DoneList(doneList)
             }
         }
-    ) {
-        NoTask()
     }
 }
 
@@ -66,6 +59,7 @@ fun TaskItem(task: Task, onTaskCheckedChange: (Boolean) -> Unit) {
         )
         Text(
             text = task.title,
+            style = MaterialTheme.typography.bodyMedium,
             textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None,
             modifier = Modifier.padding(horizontal = Padding.MEDIUM)
         )
@@ -83,7 +77,7 @@ fun TaskList(categoryTitle: String, taskList: List<Task>) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = categoryTitle,
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.titleMedium
         )
         LazyColumn(modifier = Modifier.padding(vertical = Padding.MEDIUM)) {
             items(taskList) { task ->
@@ -94,35 +88,29 @@ fun TaskList(categoryTitle: String, taskList: List<Task>) {
 }
 
 @Composable
-fun AllTaskList(todoList: List<Task>, doneList: List<Task>) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        when {
-            todoList.isEmpty() && doneList.isEmpty() -> Surface {}
-            todoList.isNotEmpty() && doneList.isEmpty() -> TodoList(todoList)
-            todoList.isEmpty() && doneList.isNotEmpty() -> DoneList(doneList)
-            else -> {
-                TodoList(todoList)
-                Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
-                DoneList(doneList)
-            }
-        }
+fun NoTask() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(R.string.add_task_please),
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 
-@Composable
-fun NoTask() {
-    Text(
-        text = stringResource(R.string.add_task_please),
-        modifier = Modifier.fillMaxSize(),
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.bodyMedium
-    )
-}
-
-@Preview(heightDp = 500)
+@Preview(heightDp = 500, showBackground = true)
 @Composable
 fun TasksScreenPreview() {
-    TasksScreen()
+    val todoList = listOf(Task("할 일", "", false), Task("할 일2", "", false))
+    val doneList = listOf(Task("끝냈음", "", true))
+    val emptyList: List<Task> = emptyList()
+
+    TasksScreen(todoList, doneList)
 }
 
 @Preview
@@ -154,18 +142,6 @@ fun TaskListPreview() {
                 )
             )
         }
-    }
-}
-
-@Preview(heightDp = 500, showBackground = true)
-@Composable
-fun AllTaskListPreview() {
-    val todoList = listOf(Task("할 일", "", false), Task("할 일2", "", false))
-    val doneList = listOf(Task("끝냈음", "", true))
-    val emptyList: List<Task> = emptyList()
-
-    ToDoComposeTheme {
-        AllTaskList(todoList, doneList)
     }
 }
 
