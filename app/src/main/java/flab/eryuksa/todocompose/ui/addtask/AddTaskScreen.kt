@@ -29,83 +29,117 @@ import androidx.compose.ui.window.Dialog
 import flab.eryuksa.todocompose.R
 import flab.eryuksa.todocompose.ui.theme.Padding
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTaskDialog(onClickAdd: () -> Unit, onClickCancel: () -> Unit) {
+fun AddTaskDialog(
+    onDismissRequest: () -> Unit,
+    onClickAdd: () -> Unit,
+    onClickCancel: () -> Unit
+) {
+    val dialogHeightDp = (LocalConfiguration.current.screenHeightDp * 0.5).toInt().dp
     var title by remember { mutableStateOf("") }
     var details by remember { mutableStateOf("") }
+    val onTitleChanged = { newTitle: String -> title = newTitle }
+    val onDetailsChanged = { newDetails: String -> details = newDetails }
 
-    Dialog(onDismissRequest = { }) {
+    Dialog(onDismissRequest) {
         Surface(
             modifier = Modifier
-                .height((LocalConfiguration.current.screenHeightDp * 0.5).toInt().dp)
-                .padding(Padding.MEDIUM),
+                .height(dialogHeightDp)
+                .padding(Padding.LARGE),
             shape = RoundedCornerShape(size = Padding.MEDIUM),
             color = Color.White
         ) {
-            Column() {
-                TextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    placeholder = { Text(stringResource(R.string.title)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Padding.SMALL),
-                    singleLine = true,
-                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.White)
+            Column(modifier = Modifier.padding(Padding.LARGE)) {
+                TitleTextField(title, onTitleChanged)
+                DetailsTextField(
+                    details,
+                    onDetailsChanged,
+                    Modifier.weight(weight = 1f)
                 )
-                TextField(
-                    value = details,
-                    onValueChange = { details = it },
-                    placeholder = { Text(stringResource(R.string.details)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(weight = 1f)
-                        .padding(start = Padding.SMALL, end = Padding.SMALL, bottom = Padding.SMALL),
-                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
-                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.White)
-                )
-                Row {
-                    Button(
-                        onClick = onClickCancel,
-                        modifier = Modifier
-                            .weight(weight = 1f)
-                            .padding(horizontal = Padding.MEDIUM)
-                    ) {
-                        Text("취소")
-                    }
-                    Button(
-                        onClick = onClickAdd,
-                        modifier = Modifier
-                            .weight(weight = 1f)
-                            .padding(horizontal = Padding.LARGE)
-                    ) {
-                        Text("추가")
-                    }
-                }
+                CancelAndAddButtons(onClickAdd, onClickCancel)
             }
         }
     }
 }
 
-/*
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TitleTextField() {
+fun TitleTextField(text: String, onTextChange: (String) -> Unit) {
     TextField(
-        value = title,
-        onValueChange = { title = it },
+        value = text,
+        onValueChange = onTextChange,
         placeholder = { Text(stringResource(R.string.title)) },
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Padding.SMALL),
-        singleLine = true
+            .fillMaxWidth(),
+        singleLine = true,
+        colors = TextFieldDefaults.textFieldColors(containerColor = Color.White)
     )
-}*/
+}
 
-@Preview(heightDp = 360)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailsTextField(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextField(
+        value = text,
+        onValueChange = onTextChange,
+        placeholder = { Text(stringResource(R.string.details)) },
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = Padding.SMALL),
+        textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
+        colors = TextFieldDefaults.textFieldColors(containerColor = Color.White)
+    )
+}
+
+@Composable
+fun CancelAndAddButtons(onClickCancel: () -> Unit, onClickAdd: () -> Unit) =
+    Row(modifier = Modifier.padding(top = Padding.MEDIUM)) {
+        val modifier = Modifier.weight(weight = 1f)
+        CancelButton(onClickCancel, modifier)
+        AddButton(onClickAdd, modifier)
+    }
+
+@Composable
+fun ResultButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.padding(horizontal = Padding.MEDIUM)
+    ) {
+        Text(text)
+    }
+}
+
+@Composable
+fun CancelButton(onClickCancel: () -> Unit, modifier: Modifier = Modifier) {
+    ResultButton(
+        text = stringResource(R.string.cancel),
+        onClick = onClickCancel,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun AddButton(onClickAdd: () -> Unit, modifier: Modifier = Modifier) {
+    ResultButton(
+        text = stringResource(R.string.add),
+        onClick = onClickAdd,
+        modifier = modifier
+    )
+}
+
+
+@Preview(heightDp = 720)
 @Composable
 fun AddTaskDialogPreview() {
     Surface {
-        AddTaskDialog({}, {})
+        AddTaskDialog({}, {}, {})
     }
 }
