@@ -1,46 +1,25 @@
 package flab.eryuksa.todocompose
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import flab.eryuksa.todocompose.ui.tasks.Task
+import flab.eryuksa.todocompose.ui.tasks.TasksScreen
 import flab.eryuksa.todocompose.ui.theme.ToDoComposeTheme
 
 class MainActivity : ComponentActivity() {
+
+    val todoList = listOf(Task("할 일", "", false), Task("할 일2", "", false))
+    val doneList = listOf(Task("끝냈음", "", true))
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ToDoComposeTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
+                TasksScreen(todoList, doneList)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ToDoComposeTheme {
-        Greeting("Android")
     }
 }
