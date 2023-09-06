@@ -10,13 +10,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -25,18 +32,32 @@ import flab.eryuksa.todocompose.R
 import flab.eryuksa.todocompose.ui.theme.Padding
 import flab.eryuksa.todocompose.ui.theme.ToDoComposeTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TasksScreen(todoList: List<Task>, doneList: List<Task>) {
-    Column(modifier = Modifier.fillMaxSize().padding(all = Padding.LARGE)) {
-        when {
-            todoList.isEmpty() && doneList.isEmpty() -> NoTask()
-            todoList.isNotEmpty() && doneList.isEmpty() -> TodoList(todoList)
-            todoList.isEmpty() && doneList.isNotEmpty() -> DoneList(doneList)
-            else -> {
-                TodoList(todoList)
-                Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
-                DoneList(doneList)
+    Scaffold(
+        containerColor = Color.White,
+        modifier = Modifier.fillMaxSize().padding(Padding.MEDIUM),
+        floatingActionButton = {
+            FloatingActionButton(onClick = {}) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = stringResource(R.string.add_task)
+                )
+            }
+        }
+    ) {
+        Column(modifier = Modifier.fillMaxSize().padding(all = Padding.LARGE)) {
+            when {
+                todoList.isEmpty() && doneList.isEmpty() -> NoTask()
+                todoList.isNotEmpty() && doneList.isEmpty() -> TodoList(todoList)
+                todoList.isEmpty() && doneList.isNotEmpty() -> DoneList(doneList)
+                else -> {
+                    TodoList(todoList)
+                    Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
+                    DoneList(doneList)
+                }
             }
         }
     }
