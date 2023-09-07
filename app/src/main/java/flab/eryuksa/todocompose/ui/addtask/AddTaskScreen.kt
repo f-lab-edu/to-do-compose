@@ -2,6 +2,7 @@ package flab.eryuksa.todocompose.ui.addtask
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,15 +28,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import flab.eryuksa.todocompose.R
+import flab.eryuksa.todocompose.ui.components.ResultButton
+import flab.eryuksa.todocompose.ui.theme.DIALOG_HEIGHT_FRACTION
 import flab.eryuksa.todocompose.ui.theme.Padding
 
 @Composable
-fun AddTaskDialog(
+fun AddTaskScreen(
     onDismissRequest: () -> Unit,
     onClickAdd: () -> Unit,
     onClickCancel: () -> Unit
 ) {
-    val dialogHeightDp = (LocalConfiguration.current.screenHeightDp * 0.5).toInt().dp
+    val dialogHeightDp = (LocalConfiguration.current.screenHeightDp * DIALOG_HEIGHT_FRACTION).toInt().dp
     var title by remember { mutableStateOf("") }
     var details by remember { mutableStateOf("") }
     val onTitleChanged = { newTitle: String -> title = newTitle }
@@ -96,43 +99,31 @@ fun DetailsTextField(
 }
 
 @Composable
-fun CancelAndAddButtons(onClickCancel: () -> Unit, onClickAdd: () -> Unit) =
+fun CancelAndAddButtons(onClickCancel: () -> Unit, onClickAdd: () -> Unit) {
     Row(modifier = Modifier.padding(top = Padding.MEDIUM)) {
-        val modifier = Modifier.weight(weight = 1f)
-        CancelButton(onClickCancel, modifier)
-        AddButton(onClickAdd, modifier)
-    }
-
-@Composable
-fun ResultButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.padding(horizontal = Padding.MEDIUM)
-    ) {
-        Text(text)
+        CancelButton(onClickCancel)
+        AddButton(onClickAdd)
     }
 }
 
 @Composable
-fun CancelButton(onClickCancel: () -> Unit, modifier: Modifier = Modifier) {
-    ResultButton(
-        text = stringResource(R.string.cancel),
-        onClick = onClickCancel,
-        modifier = modifier
-    )
+fun RowScope.CancelButton(onClickCancel: () -> Unit) {
+    Row(modifier = Modifier.weight(1f)) {
+        ResultButton(
+            text = stringResource(R.string.cancel),
+            onClick = onClickCancel,
+        )
+    }
 }
 
 @Composable
-fun AddButton(onClickAdd: () -> Unit, modifier: Modifier = Modifier) {
-    ResultButton(
-        text = stringResource(R.string.add),
-        onClick = onClickAdd,
-        modifier = modifier
-    )
+fun RowScope.AddButton(onClickAdd: () -> Unit) {
+    Row(modifier = Modifier.weight(1f)) {
+        ResultButton(
+            text = stringResource(R.string.add),
+            onClick = onClickAdd,
+        )
+    }
 }
 
 
@@ -140,6 +131,6 @@ fun AddButton(onClickAdd: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 fun AddTaskDialogPreview() {
     Surface {
-        AddTaskDialog({}, {}, {})
+        AddTaskScreen({}, {}, {})
     }
 }
