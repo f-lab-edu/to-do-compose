@@ -26,8 +26,8 @@ class TasksViewModel : ViewModel(), AddTodoJob {
     }
 
     override fun addTodo(title: String, details: String) {
-        todoList.add(Task(title, details, isDone = false))
-        _uiState.update { it.copy(taskListState = createNewTaskListStateFromCurrentOne()) }
+        addTask(Task(title, details, isDone = false))
+        updateTaskListState()
         dismissAddTaskScreen()
     }
 
@@ -35,12 +35,38 @@ class TasksViewModel : ViewModel(), AddTodoJob {
         dismissAddTaskScreen()
     }
 
-    private fun createNewTaskListStateFromCurrentOne(): TaskListState {
-        return when(_uiState.value.taskListState) {
-            is TaskListState.NoTask -> TaskListState.OnlyTodoExist(todoList)
-            is TaskListState.OnlyTodoExist -> TaskListState.OnlyTodoExist(todoList)
-            is TaskListState.OnlyDoneExist -> TaskListState.TodoAndDoneExist(todoList, doneList)
-            is TaskListState.TodoAndDoneExist -> TaskListState.TodoAndDoneExist(todoList, doneList)
+    fun changeCheckState(task: Task) {
+        removeTask(task)
+        addTask(task.copy(isDone = task.isDone.not()))
+        updateTaskListState()
+    }
+
+    private fun createUpdatedTaskListState(): TaskListState {
+        return when {
+            todoList.isEmpty() && doneList.isEmpty() -> TaskListState.NoTask
+            todoList.isNotEmpty() && doneList.isNotEmpty() -> TaskListState.TodoAndDoneExist(todoList, doneList)
+            todoList.isNotEmpty() -> TaskListState.OnlyTodoExist(todoList)
+            else -> TaskListState.OnlyDoneExist(doneList)
+        }
+    }
+
+    private fun updateTaskListState() {
+        _uiState.update { it.copy(taskListState = createUpdatedTaskListState()) }
+    }
+
+    private fun addTask(task: Task) {
+        if (task.isDone) {
+            doneList.add(task)
+        } else {
+            todoList.add(task)
+        }
+    }
+
+    private fun removeTask(task: Task) {
+        if (task.isDone) {
+            doneList.remove(task)
+        } else {
+            todoList.remove(task)
         }
     }
 }

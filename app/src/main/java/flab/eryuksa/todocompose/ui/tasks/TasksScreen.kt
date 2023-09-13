@@ -68,12 +68,12 @@ fun TasksScreen(viewModel: TasksViewModel = viewModel()) {
             .padding(all = Padding.LARGE)) {
             when(val taskListState = uiState.taskListState) {
                 is TaskListState.NoTask -> NoTask()
-                is TaskListState.OnlyTodoExist -> TodoList(taskListState.todoList)
-                is TaskListState.OnlyDoneExist -> DoneList(taskListState.doneList)
+                is TaskListState.OnlyTodoExist -> TodoList(taskListState.todoList, viewModel::changeCheckState)
+                is TaskListState.OnlyDoneExist -> DoneList(taskListState.doneList, viewModel::changeCheckState)
                 is TaskListState.TodoAndDoneExist -> {
-                    TodoList(taskListState.todoList)
+                    TodoList(taskListState.todoList, viewModel::changeCheckState)
                     Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
-                    DoneList(taskListState.doneList)
+                    DoneList(taskListState.doneList, viewModel::changeCheckState)
                 }
             }
         }
@@ -81,7 +81,7 @@ fun TasksScreen(viewModel: TasksViewModel = viewModel()) {
 }
 
 @Composable
-fun TaskItem(task: Task, onTaskCheckedChange: (Boolean) -> Unit) {
+fun TaskItem(task: Task, onTaskCheckedChange: (Task) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -93,7 +93,7 @@ fun TaskItem(task: Task, onTaskCheckedChange: (Boolean) -> Unit) {
     ) {
         Checkbox(
             checked = task.isDone,
-            onCheckedChange = onTaskCheckedChange
+            onCheckedChange = { onTaskCheckedChange(task) }
         )
         Text(
             text = task.title,
@@ -105,13 +105,19 @@ fun TaskItem(task: Task, onTaskCheckedChange: (Boolean) -> Unit) {
 }
 
 @Composable
-fun TodoList(todoList: List<Task>) = TaskList(stringResource(R.string.todo_task), todoList)
+fun TodoList(todoList: List<Task>, onTaskCheckedChange: (Task) -> Unit) =
+    TaskList(stringResource(R.string.todo_task), todoList, onTaskCheckedChange)
 
 @Composable
-fun DoneList(doneList: List<Task>) = TaskList(stringResource(R.string.done_task), doneList)
+fun DoneList(doneList: List<Task>, onTaskCheckedChange: (Task) -> Unit) =
+    TaskList(stringResource(R.string.done_task), doneList, onTaskCheckedChange)
 
 @Composable
-fun TaskList(categoryTitle: String, taskList: List<Task>) {
+fun TaskList(
+    categoryTitle: String,
+    taskList: List<Task>,
+    onTaskCheckedChange: (Task) -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = categoryTitle,
@@ -119,7 +125,7 @@ fun TaskList(categoryTitle: String, taskList: List<Task>) {
         )
         LazyColumn(modifier = Modifier.padding(vertical = Padding.MEDIUM)) {
             items(taskList) { task ->
-                TaskItem(task) {}
+                TaskItem(task, onTaskCheckedChange)
             }
         }
     }
@@ -155,8 +161,9 @@ fun TaskComposablePreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             TaskItem(
-                Task("할일", "설명", true)
-            ) {}
+                task = Task("할일", "설명", true),
+                onTaskCheckedChange = {}
+            )
         }
     }
 }
@@ -173,7 +180,8 @@ fun TaskListPreview() {
                 listOf(
                     Task("할일1", "", false),
                     Task("할일2", "", false)
-                )
+                ),
+                {}
             )
         }
     }

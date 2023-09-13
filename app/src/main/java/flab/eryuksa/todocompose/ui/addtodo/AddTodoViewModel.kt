@@ -26,10 +26,17 @@ class AddTodoViewModel(private val tasksViewModel: TasksViewModel) : ViewModel()
 
     fun addTodo() {
         tasksViewModel.addTodo(_title.value, _details.value)
+        resetUiState()
     }
 
     fun cancelAddingTodo() {
         tasksViewModel.cancelAddingTodo()
+        resetUiState()
+    }
+
+    private fun resetUiState() {
+        _title.value = ""
+        _details.value = ""
     }
 }
 
