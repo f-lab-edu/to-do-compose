@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,19 +29,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import flab.eryuksa.todocompose.R
+import flab.eryuksa.todocompose.ui.addtask.AddTaskScreen
 import flab.eryuksa.todocompose.ui.theme.Padding
 import flab.eryuksa.todocompose.ui.theme.ToDoComposeTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TasksScreen(todoList: List<Task>, doneList: List<Task>) {
+fun TasksScreen(viewModel: TasksViewModel = viewModel()) {
+    val isAddTaskDialogShown = viewModel.isAddTaskDialogShown.collectAsState()
+    val taskListState = viewModel.taskListState.collectAsState()
+
     Scaffold(
         containerColor = Color.White,
-        modifier = Modifier.fillMaxSize().padding(Padding.MEDIUM),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(Padding.MEDIUM),
         floatingActionButton = {
-            FloatingActionButton(onClick = {}) {
+            FloatingActionButton(onClick = viewModel::showAddTaskScreen) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
                     contentDescription = stringResource(R.string.add_task)
@@ -48,15 +56,26 @@ fun TasksScreen(todoList: List<Task>, doneList: List<Task>) {
             }
         }
     ) {
-        Column(modifier = Modifier.fillMaxSize().padding(all = Padding.LARGE)) {
-            when {
-                todoList.isEmpty() && doneList.isEmpty() -> NoTask()
-                todoList.isNotEmpty() && doneList.isEmpty() -> TodoList(todoList)
-                todoList.isEmpty() && doneList.isNotEmpty() -> DoneList(doneList)
-                else -> {
-                    TodoList(todoList)
+        if (isAddTaskDialogShown.value) {
+            AddTaskScreen(
+                onDismissRequest = viewModel::dismissAddTaskScreen,
+                onClickAdd = {},
+                onClickCancel = viewModel::dismissAddTaskScreen
+            )
+        }
+
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(all = Padding.LARGE)) {
+            when(taskListState.value) {
+                is TaskListState.NoTask -> NoTask()
+                is TaskListState.OnlyTodoExist -> TodoList((taskListState.value as TaskListState.OnlyTodoExist).todoList)
+                is TaskListState.OnlyDoneExist -> DoneList((taskListState.value as TaskListState.OnlyDoneExist).doneList)
+                is TaskListState.TodoAndDoneExist -> {
+                    val tasksState = taskListState.value as TaskListState.TodoAndDoneExist
+                    TodoList(tasksState.todoList)
                     Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
-                    DoneList(doneList)
+                    DoneList(tasksState.doneList)
                 }
             }
         }
@@ -127,11 +146,7 @@ fun NoTask() {
 @Preview(heightDp = 500, showBackground = true)
 @Composable
 fun TasksScreenPreview() {
-    val todoList = listOf(Task("할 일", "", false), Task("할 일2", "", false))
-    val doneList = listOf(Task("끝냈음", "", true))
-    val emptyList: List<Task> = emptyList()
-
-    TasksScreen(todoList, doneList)
+    TasksScreen(viewModel())
 }
 
 @Preview
