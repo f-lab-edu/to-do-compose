@@ -1,4 +1,4 @@
-package flab.eryuksa.todocompose.ui.addtask
+package flab.eryuksa.todocompose.ui.addtodo
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,10 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -26,24 +24,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import flab.eryuksa.todocompose.R
 import flab.eryuksa.todocompose.ui.components.ResultButton
 import flab.eryuksa.todocompose.ui.theme.DIALOG_HEIGHT_FRACTION
 import flab.eryuksa.todocompose.ui.theme.Padding
 
 @Composable
-fun AddTaskScreen(
-    onDismissRequest: () -> Unit,
-    onClickAdd: () -> Unit,
-    onClickCancel: () -> Unit
-) {
+fun AddTodoScreen(viewModel: AddTodoViewModel) {
     val dialogHeightDp = (LocalConfiguration.current.screenHeightDp * DIALOG_HEIGHT_FRACTION).toInt().dp
-    var title by remember { mutableStateOf("") }
-    var details by remember { mutableStateOf("") }
-    val onTitleChanged = { newTitle: String -> title = newTitle }
-    val onDetailsChanged = { newDetails: String -> details = newDetails }
+    val title by viewModel.title.collectAsState()
+    val details by viewModel.details.collectAsState()
 
-    Dialog(onDismissRequest) {
+    Dialog(viewModel::cancelAddingTodo) {
         Surface(
             modifier = Modifier
                 .height(dialogHeightDp)
@@ -52,13 +45,16 @@ fun AddTaskScreen(
             color = Color.White
         ) {
             Column(modifier = Modifier.padding(Padding.LARGE)) {
-                TitleTextField(title, onTitleChanged)
+                TitleTextField(title, viewModel::updateTitle)
                 DetailsTextField(
-                    details,
-                    onDetailsChanged,
-                    Modifier.weight(weight = 1f)
+                    text = details,
+                    onTextChange = viewModel::updateDetails,
+                    modifier = Modifier.weight(weight = 1f)
                 )
-                CancelAndAddButtons(onClickAdd, onClickCancel)
+                CancelAndAddButtons(
+                    onClickCancel = viewModel::cancelAddingTodo,
+                    onClickAdd = viewModel::addTodo
+                )
             }
         }
     }
@@ -98,7 +94,9 @@ fun DetailsTextField(
 }
 
 @Composable
-fun CancelAndAddButtons(onClickCancel: () -> Unit, onClickAdd: () -> Unit) {
+fun CancelAndAddButtons(
+    onClickCancel: () -> Unit,
+    onClickAdd: () -> Unit) {
     Row(modifier = Modifier.padding(top = Padding.MEDIUM)) {
         CancelButton(onClickCancel)
         AddButton(onClickAdd)
@@ -130,6 +128,6 @@ fun RowScope.AddButton(onClickAdd: () -> Unit) {
 @Composable
 fun AddTaskDialogPreview() {
     Surface {
-        AddTaskScreen({}, {}, {})
+        AddTodoScreen(viewModel(factory = AddTodoViewModelFactory(tasksViewModel = viewModel())))
     }
 }

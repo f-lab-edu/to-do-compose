@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,7 +32,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import flab.eryuksa.todocompose.R
-import flab.eryuksa.todocompose.ui.addtask.AddTaskScreen
+import flab.eryuksa.todocompose.ui.addtodo.AddTodoScreen
+import flab.eryuksa.todocompose.ui.addtodo.AddTodoViewModelFactory
 import flab.eryuksa.todocompose.ui.theme.Padding
 import flab.eryuksa.todocompose.ui.theme.ToDoComposeTheme
 
@@ -39,8 +41,7 @@ import flab.eryuksa.todocompose.ui.theme.ToDoComposeTheme
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TasksScreen(viewModel: TasksViewModel = viewModel()) {
-    val isAddTaskDialogShown = viewModel.isAddTaskDialogShown.collectAsState()
-    val taskListState = viewModel.taskListState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         containerColor = Color.White,
@@ -56,26 +57,23 @@ fun TasksScreen(viewModel: TasksViewModel = viewModel()) {
             }
         }
     ) {
-        if (isAddTaskDialogShown.value) {
-            AddTaskScreen(
-                onDismissRequest = viewModel::dismissAddTaskScreen,
-                onClickAdd = {},
-                onClickCancel = viewModel::dismissAddTaskScreen
+        if (uiState.isAddTaskScreenShown) {
+            AddTodoScreen(
+                viewModel(factory = AddTodoViewModelFactory(tasksViewModel = viewModel))
             )
         }
 
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(all = Padding.LARGE)) {
-            when(taskListState.value) {
+            when(val taskListState = uiState.taskListState) {
                 is TaskListState.NoTask -> NoTask()
-                is TaskListState.OnlyTodoExist -> TodoList((taskListState.value as TaskListState.OnlyTodoExist).todoList)
-                is TaskListState.OnlyDoneExist -> DoneList((taskListState.value as TaskListState.OnlyDoneExist).doneList)
+                is TaskListState.OnlyTodoExist -> TodoList(taskListState.todoList)
+                is TaskListState.OnlyDoneExist -> DoneList(taskListState.doneList)
                 is TaskListState.TodoAndDoneExist -> {
-                    val tasksState = taskListState.value as TaskListState.TodoAndDoneExist
-                    TodoList(tasksState.todoList)
+                    TodoList(taskListState.todoList)
                     Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
-                    DoneList(tasksState.doneList)
+                    DoneList(taskListState.doneList)
                 }
             }
         }
