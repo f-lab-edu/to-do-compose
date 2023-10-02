@@ -21,6 +21,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,19 +30,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import flab.eryuksa.todocompose.R
+import flab.eryuksa.todocompose.ui.addtodo.AddTodoScreen
+import flab.eryuksa.todocompose.ui.addtodo.AddTodoViewModelFactory
 import flab.eryuksa.todocompose.ui.theme.Padding
 import flab.eryuksa.todocompose.ui.theme.ToDoComposeTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TasksScreen(todoList: List<Task>, doneList: List<Task>) {
+fun TasksScreen(viewModel: TasksViewModel = viewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
+
     Scaffold(
         containerColor = Color.White,
-        modifier = Modifier.fillMaxSize().padding(Padding.MEDIUM),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(Padding.MEDIUM),
         floatingActionButton = {
-            FloatingActionButton(onClick = {}) {
+            FloatingActionButton(onClick = viewModel::showAddTaskScreen) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
                     contentDescription = stringResource(R.string.add_task)
@@ -48,15 +57,23 @@ fun TasksScreen(todoList: List<Task>, doneList: List<Task>) {
             }
         }
     ) {
-        Column(modifier = Modifier.fillMaxSize().padding(all = Padding.LARGE)) {
-            when {
-                todoList.isEmpty() && doneList.isEmpty() -> NoTask()
-                todoList.isNotEmpty() && doneList.isEmpty() -> TodoList(todoList)
-                todoList.isEmpty() && doneList.isNotEmpty() -> DoneList(doneList)
-                else -> {
-                    TodoList(todoList)
+        if (uiState.isAddTaskScreenShown) {
+            AddTodoScreen(
+                viewModel(factory = AddTodoViewModelFactory(tasksViewModel = viewModel))
+            )
+        }
+
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(all = Padding.LARGE)) {
+            when(val taskListState = uiState.taskListState) {
+                is TaskListState.NoTask -> NoTask()
+                is TaskListState.OnlyTodoExist -> TodoList(taskListState.todoList, viewModel::changeCheckState)
+                is TaskListState.OnlyDoneExist -> DoneList(taskListState.doneList, viewModel::changeCheckState)
+                is TaskListState.TodoAndDoneExist -> {
+                    TodoList(taskListState.todoList, viewModel::changeCheckState)
                     Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
-                    DoneList(doneList)
+                    DoneList(taskListState.doneList, viewModel::changeCheckState)
                 }
             }
         }
@@ -64,7 +81,7 @@ fun TasksScreen(todoList: List<Task>, doneList: List<Task>) {
 }
 
 @Composable
-fun TaskItem(task: Task, onTaskCheckedChange: (Boolean) -> Unit) {
+fun TaskItem(task: Task, onTaskCheckedChange: (Task) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -76,7 +93,7 @@ fun TaskItem(task: Task, onTaskCheckedChange: (Boolean) -> Unit) {
     ) {
         Checkbox(
             checked = task.isDone,
-            onCheckedChange = onTaskCheckedChange
+            onCheckedChange = { onTaskCheckedChange(task) }
         )
         Text(
             text = task.title,
@@ -88,13 +105,19 @@ fun TaskItem(task: Task, onTaskCheckedChange: (Boolean) -> Unit) {
 }
 
 @Composable
-fun TodoList(todoList: List<Task>) = TaskList(stringResource(R.string.todo_task), todoList)
+fun TodoList(todoList: List<Task>, onTaskCheckedChange: (Task) -> Unit) =
+    TaskList(stringResource(R.string.todo_task), todoList, onTaskCheckedChange)
 
 @Composable
-fun DoneList(doneList: List<Task>) = TaskList(stringResource(R.string.done_task), doneList)
+fun DoneList(doneList: List<Task>, onTaskCheckedChange: (Task) -> Unit) =
+    TaskList(stringResource(R.string.done_task), doneList, onTaskCheckedChange)
 
 @Composable
-fun TaskList(categoryTitle: String, taskList: List<Task>) {
+fun TaskList(
+    categoryTitle: String,
+    taskList: List<Task>,
+    onTaskCheckedChange: (Task) -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = categoryTitle,
@@ -102,7 +125,7 @@ fun TaskList(categoryTitle: String, taskList: List<Task>) {
         )
         LazyColumn(modifier = Modifier.padding(vertical = Padding.MEDIUM)) {
             items(taskList) { task ->
-                TaskItem(task) {}
+                TaskItem(task, onTaskCheckedChange)
             }
         }
     }
@@ -127,11 +150,7 @@ fun NoTask() {
 @Preview(heightDp = 500, showBackground = true)
 @Composable
 fun TasksScreenPreview() {
-    val todoList = listOf(Task("할 일", "", false), Task("할 일2", "", false))
-    val doneList = listOf(Task("끝냈음", "", true))
-    val emptyList: List<Task> = emptyList()
-
-    TasksScreen(todoList, doneList)
+    TasksScreen(viewModel())
 }
 
 @Preview
@@ -142,8 +161,9 @@ fun TaskComposablePreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             TaskItem(
-                Task("할일", "설명", true)
-            ) {}
+                task = Task("할일", "설명", true),
+                onTaskCheckedChange = {}
+            )
         }
     }
 }
@@ -160,7 +180,8 @@ fun TaskListPreview() {
                 listOf(
                     Task("할일1", "", false),
                     Task("할일2", "", false)
-                )
+                ),
+                {}
             )
         }
     }

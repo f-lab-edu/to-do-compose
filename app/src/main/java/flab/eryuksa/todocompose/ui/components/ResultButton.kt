@@ -1,5 +1,6 @@
 package flab.eryuksa.todocompose.ui.components
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -14,7 +15,7 @@ fun ResultButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = Modifier.padding(horizontal = Padding.MEDIUM)
+        modifier = Modifier.padding(horizontal = Padding.MEDIUM).fillMaxWidth()
     ) {
         Text(text)
     }
