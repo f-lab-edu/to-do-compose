@@ -1,4 +1,4 @@
-package flab.eryuksa.todocompose.ui.addtodo
+package flab.eryuksa.todocompose.ui.tasks.viewmodel.input
 
 interface AddTodoJob {
 
