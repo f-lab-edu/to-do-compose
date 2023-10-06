@@ -2,12 +2,17 @@ package flab.eryuksa.todocompose.ui.addtodo.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import flab.eryuksa.todocompose.ui.addtodo.viewmodel.input.AddTodoInput
+import flab.eryuksa.todocompose.ui.addtodo.viewmodel.output.AddTodoEffect
 import flab.eryuksa.todocompose.ui.addtodo.viewmodel.output.AddTodoOutput
 import flab.eryuksa.todocompose.ui.addtodo.viewmodel.output.AddTodoState
 import flab.eryuksa.todocompose.ui.tasks.viewmodel.input.AddTodoJob
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class AddTodoViewModel(private val addTodoJob: AddTodoJob) : ViewModel(), AddTodoOutput,
     AddTodoInput {
@@ -15,6 +20,10 @@ class AddTodoViewModel(private val addTodoJob: AddTodoJob) : ViewModel(), AddTod
     private val _uiState = MutableStateFlow(AddTodoState.EMPTY)
     override val uiState: StateFlow<AddTodoState>
         get() = _uiState
+
+    private val _uiEffect = MutableSharedFlow<AddTodoEffect>(replay = 0)
+    override val uiEffect: SharedFlow<AddTodoEffect>
+        get() = _uiEffect
 
     override fun updateTitle(newTitle: String) {
         _uiState.value = _uiState.value.copy(title = newTitle)
@@ -26,16 +35,13 @@ class AddTodoViewModel(private val addTodoJob: AddTodoJob) : ViewModel(), AddTod
 
     override fun addTodo() {
         addTodoJob.addTodo(_uiState.value.title, _uiState.value.details)
-        resetUiState()
+        dismissScreen()
     }
 
-    override fun cancelAddingTodo() {
-        addTodoJob.cancelAddingTodo()
-        resetUiState()
-    }
-
-    private fun resetUiState() {
-        _uiState.value = AddTodoState.EMPTY
+    override fun dismissScreen() {
+        viewModelScope.launch {
+            _uiEffect.emit(AddTodoEffect.DismissAddTodoScreen)
+        }
     }
 }
 

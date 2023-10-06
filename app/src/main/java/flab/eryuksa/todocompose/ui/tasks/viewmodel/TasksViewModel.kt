@@ -2,8 +2,8 @@ package flab.eryuksa.todocompose.ui.tasks.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import flab.eryuksa.todocompose.ui.tasks.viewmodel.input.AddTodoJob
 import flab.eryuksa.todocompose.ui.tasks.model.Task
+import flab.eryuksa.todocompose.ui.tasks.viewmodel.input.AddTodoJob
 import flab.eryuksa.todocompose.ui.tasks.viewmodel.input.TasksInput
 import flab.eryuksa.todocompose.ui.tasks.viewmodel.output.TasksEffect
 import flab.eryuksa.todocompose.ui.tasks.viewmodel.output.TasksOutput
@@ -24,8 +24,8 @@ class TasksViewModel : ViewModel(), TasksOutput, TasksInput, AddTodoJob {
     override val uiEffect: SharedFlow<TasksEffect>
         get() = _uiEffect
 
-    private val todoList = mutableListOf<Task>()
-    private val doneList = mutableListOf<Task>()
+    private var todoList = emptyList<Task>()
+    private var doneList = emptyList<Task>()
 
     override fun showAddTaskScreen() {
         viewModelScope.launch {
@@ -39,20 +39,13 @@ class TasksViewModel : ViewModel(), TasksOutput, TasksInput, AddTodoJob {
         updateTasksState()
     }
 
-    private fun dismissAddTaskScreen() {
-        viewModelScope.launch {
-            _uiEffect.emit(TasksEffect.DismissAddTodoScreen)
-        }
-    }
-
     override fun addTodo(title: String, details: String) {
         addTask(Task(title, details, isDone = false))
         updateTasksState()
-        dismissAddTaskScreen()
     }
 
-    override fun cancelAddingTodo() {
-        dismissAddTaskScreen()
+    private fun updateTasksState() {
+        _uiState.value = createUpdatedTaskListState()
     }
 
     private fun createUpdatedTaskListState(): TasksState {
@@ -67,23 +60,19 @@ class TasksViewModel : ViewModel(), TasksOutput, TasksInput, AddTodoJob {
         }
     }
 
-    private fun updateTasksState() {
-        _uiState.value = createUpdatedTaskListState()
-    }
-
     private fun addTask(task: Task) {
         if (task.isDone) {
-            doneList.add(task)
+            doneList += task
         } else {
-            todoList.add(task)
+            todoList += task
         }
     }
 
     private fun removeTask(task: Task) {
         if (task.isDone) {
-            doneList.remove(task)
+            doneList = doneList.filter { it != task }
         } else {
-            todoList.remove(task)
+            todoList = todoList.filter { it != task }
         }
     }
 }

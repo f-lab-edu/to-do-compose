@@ -41,7 +41,7 @@ fun AddTodoScreen(input: AddTodoInput, output: AddTodoOutput) {
         (LocalConfiguration.current.screenHeightDp * DIALOG_HEIGHT_FRACTION).toInt().dp
     val uiState by output.uiState.collectAsState()
 
-    Dialog(input::cancelAddingTodo) {
+    Dialog(input::dismissScreen) {
         Surface(
             modifier = Modifier
                 .height(dialogHeightDp)
@@ -57,7 +57,7 @@ fun AddTodoScreen(input: AddTodoInput, output: AddTodoOutput) {
                     modifier = Modifier.weight(weight = 1f)
                 )
                 CancelAndAddButtons(
-                    onClickCancel = input::cancelAddingTodo,
+                    onClickCancel = input::dismissScreen,
                     onClickAdd = input::addTodo
                 )
             }
@@ -137,7 +137,6 @@ fun AddTaskDialogPreview() {
         val viewModel: AddTodoViewModel =
             viewModel(factory = AddTodoViewModelFactory(object : AddTodoJob {
                 override fun addTodo(title: String, details: String) {}
-                override fun cancelAddingTodo() {}
             }))
         AddTodoScreen(viewModel, viewModel)
     }

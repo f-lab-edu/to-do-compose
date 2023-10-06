@@ -1,7 +1,6 @@
 package flab.eryuksa.todocompose.ui.tasks.viewmodel.output
 
-sealed class TasksEffect {
+sealed interface TasksEffect {
 
-    object ShowAddTodoScreen : TasksEffect()
-    object DismissAddTodoScreen : TasksEffect()
+    object ShowAddTodoScreen : TasksEffect
 }
