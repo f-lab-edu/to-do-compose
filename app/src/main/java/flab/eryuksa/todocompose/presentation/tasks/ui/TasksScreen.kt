@@ -1,4 +1,4 @@
-package flab.eryuksa.todocompose.ui.tasks
+package flab.eryuksa.todocompose.presentation.tasks.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
@@ -32,16 +32,19 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import flab.eryuksa.todocompose.R
-import flab.eryuksa.todocompose.ui.addtodo.AddTodoScreen
-import flab.eryuksa.todocompose.ui.addtodo.AddTodoViewModelFactory
-import flab.eryuksa.todocompose.ui.theme.Padding
-import flab.eryuksa.todocompose.ui.theme.ToDoComposeTheme
+import flab.eryuksa.todocompose.data.model.Task
+import flab.eryuksa.todocompose.presentation.tasks.viewmodel.TasksViewModel
+import flab.eryuksa.todocompose.presentation.tasks.viewmodel.input.TasksInput
+import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksOutput
+import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksState
+import flab.eryuksa.todocompose.presentation.theme.Padding
+import flab.eryuksa.todocompose.presentation.theme.ToDoComposeTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TasksScreen(viewModel: TasksViewModel = viewModel()) {
-    val uiState by viewModel.uiState.collectAsState()
+fun TasksScreen(input: TasksInput, output: TasksOutput) {
+    val uiState by output.uiState.collectAsState()
 
     Scaffold(
         containerColor = Color.White,
@@ -49,7 +52,7 @@ fun TasksScreen(viewModel: TasksViewModel = viewModel()) {
             .fillMaxSize()
             .padding(Padding.MEDIUM),
         floatingActionButton = {
-            FloatingActionButton(onClick = viewModel::showAddTaskScreen) {
+            FloatingActionButton(onClick = input::showAddTaskScreen) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
                     contentDescription = stringResource(R.string.add_task)
@@ -57,23 +60,25 @@ fun TasksScreen(viewModel: TasksViewModel = viewModel()) {
             }
         }
     ) {
-        if (uiState.isAddTaskScreenShown) {
-            AddTodoScreen(
-                viewModel(factory = AddTodoViewModelFactory(tasksViewModel = viewModel))
-            )
-        }
-
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(all = Padding.LARGE)) {
-            when(val taskListState = uiState.taskListState) {
-                is TaskListState.NoTask -> NoTask()
-                is TaskListState.OnlyTodoExist -> TodoList(taskListState.todoList, viewModel::changeCheckState)
-                is TaskListState.OnlyDoneExist -> DoneList(taskListState.doneList, viewModel::changeCheckState)
-                is TaskListState.TodoAndDoneExist -> {
-                    TodoList(taskListState.todoList, viewModel::changeCheckState)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = Padding.LARGE)
+        ) {
+            when (val tasksState = uiState) {
+                is TasksState.NoTask -> NoTask()
+                is TasksState.OnlyTodoExist -> TodoList(
+                    tasksState.todoList,
+                    input::changeCheckedState
+                )
+                is TasksState.OnlyDoneExist -> DoneList(
+                    tasksState.doneList,
+                    input::changeCheckedState
+                )
+                is TasksState.TodoAndDoneExist -> {
+                    TodoList(tasksState.todoList, input::changeCheckedState)
                     Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
-                    DoneList(taskListState.doneList, viewModel::changeCheckState)
+                    DoneList(tasksState.doneList, input::changeCheckedState)
                 }
             }
         }
@@ -150,7 +155,8 @@ fun NoTask() {
 @Preview(heightDp = 500, showBackground = true)
 @Composable
 fun TasksScreenPreview() {
-    TasksScreen(viewModel())
+    val viewModel: TasksViewModel = viewModel()
+    TasksScreen(viewModel, viewModel)
 }
 
 @Preview

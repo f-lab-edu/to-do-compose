@@ -1,4 +1,4 @@
-package flab.eryuksa.todocompose.ui.theme
+package flab.eryuksa.todocompose.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

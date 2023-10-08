@@ -1,4 +1,4 @@
-package flab.eryuksa.todocompose.ui.addtodo
+package flab.eryuksa.todocompose.presentation.addtodo.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,17 +26,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import flab.eryuksa.todocompose.R
-import flab.eryuksa.todocompose.ui.components.ResultButton
-import flab.eryuksa.todocompose.ui.theme.DIALOG_HEIGHT_FRACTION
-import flab.eryuksa.todocompose.ui.theme.Padding
+import flab.eryuksa.todocompose.presentation.addtodo.viewmodel.AddTodoViewModel
+import flab.eryuksa.todocompose.presentation.addtodo.viewmodel.input.AddTodoInput
+import flab.eryuksa.todocompose.presentation.addtodo.viewmodel.output.AddTodoOutput
+import flab.eryuksa.todocompose.presentation.components.ResultButton
+import flab.eryuksa.todocompose.presentation.theme.DIALOG_HEIGHT_FRACTION
+import flab.eryuksa.todocompose.presentation.theme.Padding
 
 @Composable
-fun AddTodoScreen(viewModel: AddTodoViewModel) {
-    val dialogHeightDp = (LocalConfiguration.current.screenHeightDp * DIALOG_HEIGHT_FRACTION).toInt().dp
-    val title by viewModel.title.collectAsState()
-    val details by viewModel.details.collectAsState()
+fun AddTodoScreen(input: AddTodoInput, output: AddTodoOutput) {
+    val dialogHeightDp =
+        (LocalConfiguration.current.screenHeightDp * DIALOG_HEIGHT_FRACTION).toInt().dp
+    val uiState by output.uiState.collectAsState()
 
-    Dialog(viewModel::cancelAddingTodo) {
+    Dialog(input::dismissScreen) {
         Surface(
             modifier = Modifier
                 .height(dialogHeightDp)
@@ -45,15 +48,15 @@ fun AddTodoScreen(viewModel: AddTodoViewModel) {
             color = Color.White
         ) {
             Column(modifier = Modifier.padding(Padding.LARGE)) {
-                TitleTextField(title, viewModel::updateTitle)
+                TitleTextField(uiState.title, input::updateTitle)
                 DetailsTextField(
-                    text = details,
-                    onTextChange = viewModel::updateDetails,
+                    text = uiState.details,
+                    onTextChange = input::updateDetails,
                     modifier = Modifier.weight(weight = 1f)
                 )
                 CancelAndAddButtons(
-                    onClickCancel = viewModel::cancelAddingTodo,
-                    onClickAdd = viewModel::addTodo
+                    onClickCancel = input::dismissScreen,
+                    onClickAdd = input::addTodo
                 )
             }
         }
@@ -96,7 +99,8 @@ fun DetailsTextField(
 @Composable
 fun CancelAndAddButtons(
     onClickCancel: () -> Unit,
-    onClickAdd: () -> Unit) {
+    onClickAdd: () -> Unit
+) {
     Row(modifier = Modifier.padding(top = Padding.MEDIUM)) {
         CancelButton(onClickCancel)
         AddButton(onClickAdd)
@@ -128,6 +132,7 @@ fun RowScope.AddButton(onClickAdd: () -> Unit) {
 @Composable
 fun AddTaskDialogPreview() {
     Surface {
-        AddTodoScreen(viewModel(factory = AddTodoViewModelFactory(tasksViewModel = viewModel())))
+        val viewModel: AddTodoViewModel = viewModel()
+        AddTodoScreen(viewModel, viewModel)
     }
 }
