@@ -7,11 +7,11 @@
 
     <fragment
         android:id="@+id/tasksFragment"
-        android:name="flab.eryuksa.todocompose.ui.tasks.TasksFragment"
+        android:name="flab.eryuksa.todocompose.presentation.tasks.TasksFragment"
         android:label="TasksFragment" />
 
     <dialog
         android:id="@+id/addTodoDialogFragment"
-        android:name="flab.eryuksa.todocompose.ui.addtodo.AddTodoDialogFragment"
+        android:name="flab.eryuksa.todocompose.presentation.addtodo.AddTodoDialogFragment"
         android:label="AddTodoDialogFragment" />
 </navigation>
