@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import flab.eryuksa.todocompose.data.repository.addtodo.AddTodoRepository
-import flab.eryuksa.todocompose.data.repository.DefaultTasksRepository
+import flab.eryuksa.todocompose.data.repository.DefaultTaskRepository
 import flab.eryuksa.todocompose.data.repository.tasks.TasksRepository
 import javax.inject.Singleton
 
@@ -15,10 +15,10 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindTasksRepository(tasksRepository: DefaultTasksRepository): TasksRepository
+    abstract fun bindTasksRepository(tasksRepository: DefaultTaskRepository): TasksRepository
 
     @Binds
     @Singleton
-    abstract fun bindAddTodoRepository(addTodoRepository: DefaultTasksRepository): AddTodoRepository
+    abstract fun bindAddTodoRepository(addTodoRepository: DefaultTaskRepository): AddTodoRepository
 
 }
