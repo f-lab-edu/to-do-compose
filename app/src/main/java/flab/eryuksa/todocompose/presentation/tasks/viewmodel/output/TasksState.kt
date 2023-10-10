@@ -1,6 +1,6 @@
 package flab.eryuksa.todocompose.presentation.tasks.viewmodel.output
 
-import flab.eryuksa.todocompose.data.model.Task
+import flab.eryuksa.todocompose.data.entity.Task
 
 sealed interface TasksState {
 

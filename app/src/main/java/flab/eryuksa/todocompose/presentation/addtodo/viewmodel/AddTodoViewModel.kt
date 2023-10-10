@@ -37,8 +37,10 @@ class AddTodoViewModel @Inject constructor(
     }
 
     override fun addTodo() {
-        repository.addTodo(_uiState.value.title, _uiState.value.details)
-        dismissScreen()
+        viewModelScope.launch {
+            repository.addTodo(_uiState.value.title, _uiState.value.details)
+            dismissScreen()
+        }
     }
 
     override fun dismissScreen() {

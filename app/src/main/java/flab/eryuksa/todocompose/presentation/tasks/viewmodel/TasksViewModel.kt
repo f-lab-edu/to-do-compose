@@ -3,7 +3,7 @@ package flab.eryuksa.todocompose.presentation.tasks.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import flab.eryuksa.todocompose.data.model.Task
+import flab.eryuksa.todocompose.data.entity.Task
 import flab.eryuksa.todocompose.data.repository.tasks.TasksRepository
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.input.TasksInput
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksEffect
@@ -44,9 +44,11 @@ class TasksViewModel @Inject constructor(
     }
 
     override fun changeCheckedState(task: Task) {
-        repository.updateTaskToModifiedTask(
-            task.copy(isDone = task.isDone.not())
-        )
+        viewModelScope.launch {
+            repository.updateTaskToModifiedTask(
+                task.copy(isDone = task.isDone.not())
+            )
+        }
     }
 
     private fun createTasksState(todoList: List<Task>, doneList: List<Task>): TasksState {

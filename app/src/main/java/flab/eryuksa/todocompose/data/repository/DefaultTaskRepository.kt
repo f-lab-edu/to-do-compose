@@ -1,18 +1,18 @@
 package flab.eryuksa.todocompose.data.repository
 
-import flab.eryuksa.todocompose.data.model.Task
+import flab.eryuksa.todocompose.data.entity.Task
 import flab.eryuksa.todocompose.data.repository.addtodo.AddTodoRepository
 import flab.eryuksa.todocompose.data.repository.tasks.TasksRepository
+import flab.eryuksa.todocompose.data.source.local.LocalDataSource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class DefaultTasksRepository @Inject constructor(): TasksRepository, AddTodoRepository {
+class DefaultTaskRepository @Inject constructor(
+    private val localDataSource: LocalDataSource
+) : TasksRepository, AddTodoRepository {
 
-    private val taskList = MutableStateFlow<List<Task>>(emptyList())
+    private val taskList: Flow<List<Task>> = localDataSource.getAllTaskStream()
 
     private val todoList: Flow<List<Task>> = taskList.map { taskList ->
         taskList.filterNot { it.isDone }
@@ -29,13 +29,17 @@ class DefaultTasksRepository @Inject constructor(): TasksRepository, AddTodoRepo
         return doneList
     }
 
-    override fun updateTaskToModifiedTask(modifiedTask: Task) {
-        taskList.value = taskList.value.map { originalTask ->
-            if (originalTask.id == modifiedTask.id) modifiedTask else originalTask
-        }
+    override suspend fun updateTaskToModifiedTask(modifiedTask: Task) {
+        localDataSource.updateTask(modifiedTask)
     }
 
-    override fun addTodo(title: String, details: String) {
-        taskList.value += Task(title, details, isDone = false)
+    override suspend fun addTodo(title: String, details: String) {
+        localDataSource.addTask(
+            Task(
+                title = title,
+                details = details,
+                isDone = false
+            )
+        )
     }
 }

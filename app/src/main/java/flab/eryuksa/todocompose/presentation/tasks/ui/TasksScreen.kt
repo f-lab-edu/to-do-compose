@@ -32,7 +32,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import flab.eryuksa.todocompose.R
-import flab.eryuksa.todocompose.data.model.Task
+import flab.eryuksa.todocompose.data.entity.Task
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.TasksViewModel
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.input.TasksInput
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksOutput
