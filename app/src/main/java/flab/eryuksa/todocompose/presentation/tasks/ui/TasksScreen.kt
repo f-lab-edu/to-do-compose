@@ -12,10 +12,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -36,7 +38,6 @@ import flab.eryuksa.todocompose.data.entity.Task
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.TasksViewModel
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.input.TasksInput
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksOutput
-import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksState
 import flab.eryuksa.todocompose.presentation.theme.Padding
 import flab.eryuksa.todocompose.presentation.theme.ToDoComposeTheme
 
@@ -55,7 +56,7 @@ fun TasksScreen(input: TasksInput, output: TasksOutput) {
             FloatingActionButton(onClick = input::showAddTaskScreen) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
-                    contentDescription = stringResource(R.string.add_task)
+                    contentDescription = stringResource(R.string.add_task_button_description)
                 )
             }
         }
@@ -65,34 +66,32 @@ fun TasksScreen(input: TasksInput, output: TasksOutput) {
                 .fillMaxSize()
                 .padding(all = Padding.LARGE)
         ) {
-            when (val tasksState = uiState) {
-                is TasksState.NoTask -> NoTask()
-                is TasksState.OnlyTodoExist -> TodoList(
-                    tasksState.todoList,
-                    input::changeCheckedState
-                )
-                is TasksState.OnlyDoneExist -> DoneList(
-                    tasksState.doneList,
-                    input::changeCheckedState
-                )
-                is TasksState.TodoAndDoneExist -> {
-                    TodoList(tasksState.todoList, input::changeCheckedState)
-                    Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
-                    DoneList(tasksState.doneList, input::changeCheckedState)
-                }
-            }
+            TodoList(
+                todoList = uiState.todoList,
+                onTaskCheckedChange = input::changeCheckedState,
+                onClickDeleteTask = input::showDeleteTaskDialog
+            )
+            DoneList(
+                doneList = uiState.doneList,
+                onTaskCheckedChange = input::changeCheckedState,
+                onClickDeleteTask = input::showDeleteTaskDialog
+            )
         }
     }
 }
 
 @Composable
-fun TaskItem(task: Task, onTaskCheckedChange: (Task) -> Unit) {
+fun TaskItem(
+    task: Task,
+    onTaskCheckedChange: (Task) -> Unit,
+    onClickDeleteTask: (Task) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = Padding.LARGE,
+                horizontal = Padding.MEDIUM,
                 vertical = Padding.MEDIUM
             )
     ) {
@@ -104,33 +103,76 @@ fun TaskItem(task: Task, onTaskCheckedChange: (Task) -> Unit) {
             text = task.title,
             style = MaterialTheme.typography.bodyMedium,
             textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None,
-            modifier = Modifier.padding(horizontal = Padding.MEDIUM)
+            modifier = Modifier
+                .padding(horizontal = Padding.MEDIUM)
+                .weight(weight = 1f)
+        )
+        DeleteTaskButton(onClick = { onClickDeleteTask(task) })
+    }
+}
+
+@Composable
+fun DeleteTaskButton(onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(
+            imageVector = Icons.Rounded.Delete,
+            contentDescription = stringResource(id = R.string.delete_task_button_description)
         )
     }
 }
 
 @Composable
-fun TodoList(todoList: List<Task>, onTaskCheckedChange: (Task) -> Unit) =
-    TaskList(stringResource(R.string.todo_task), todoList, onTaskCheckedChange)
+fun TodoList(
+    todoList: List<Task>,
+    onTaskCheckedChange: (Task) -> Unit,
+    onClickDeleteTask: (Task) -> Unit
+) {
+    if (todoList.isNotEmpty()) {
+        TaskList(
+            categoryTitle = stringResource(R.string.todo_task),
+            taskList = todoList,
+            onTaskCheckedChange = onTaskCheckedChange,
+            onClickDeleteTask = onClickDeleteTask
+        )
+        Spacer(modifier = Modifier.padding(vertical = Padding.LARGE))
+    }
+}
 
 @Composable
-fun DoneList(doneList: List<Task>, onTaskCheckedChange: (Task) -> Unit) =
-    TaskList(stringResource(R.string.done_task), doneList, onTaskCheckedChange)
+fun DoneList(
+    doneList: List<Task>,
+    onTaskCheckedChange: (Task) -> Unit,
+    onClickDeleteTask: (Task) -> Unit
+) {
+    if (doneList.isNotEmpty()) {
+        TaskList(
+            categoryTitle = stringResource(R.string.done_task),
+            taskList = doneList,
+            onTaskCheckedChange = onTaskCheckedChange,
+            onClickDeleteTask = onClickDeleteTask
+        )
+    }
+}
 
 @Composable
 fun TaskList(
     categoryTitle: String,
     taskList: List<Task>,
-    onTaskCheckedChange: (Task) -> Unit
+    onTaskCheckedChange: (Task) -> Unit,
+    onClickDeleteTask: (Task) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = categoryTitle,
             style = MaterialTheme.typography.titleMedium
         )
-        LazyColumn(modifier = Modifier.padding(vertical = Padding.MEDIUM)) {
+        LazyColumn {
             items(taskList) { task ->
-                TaskItem(task, onTaskCheckedChange)
+                TaskItem(
+                    task = task,
+                    onTaskCheckedChange = onTaskCheckedChange,
+                    onClickDeleteTask = onClickDeleteTask
+                )
             }
         }
     }
@@ -168,7 +210,8 @@ fun TaskComposablePreview() {
         ) {
             TaskItem(
                 task = Task("할일", "설명", true),
-                onTaskCheckedChange = {}
+                onTaskCheckedChange = {},
+                onClickDeleteTask = {}
             )
         }
     }
@@ -182,12 +225,13 @@ fun TaskListPreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             TaskList(
-                "할 일",
-                listOf(
+                categoryTitle = "할 일",
+                taskList = listOf(
                     Task("할일1", "", false),
                     Task("할일2", "", false)
                 ),
-                {}
+                onTaskCheckedChange = {},
+                onClickDeleteTask = {}
             )
         }
     }

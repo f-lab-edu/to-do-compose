@@ -10,6 +10,7 @@ import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksEffect
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksOutput
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksState
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -26,11 +27,11 @@ class TasksViewModel @Inject constructor(
     override val uiState: StateFlow<TasksState> = combine(
         repository.getTodoTasks(), repository.getDoneTasks()
     ) { todoList, doneList ->
-        createTasksState(todoList, doneList)
+        TasksState(todoList = todoList, doneList = doneList)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
-        initialValue = TasksState.NoTask
+        initialValue = TasksState.INITIAL
     )
 
     private val _uiEffect = MutableSharedFlow<TasksEffect>(replay = 0)
@@ -51,16 +52,9 @@ class TasksViewModel @Inject constructor(
         }
     }
 
-    private fun createTasksState(todoList: List<Task>, doneList: List<Task>): TasksState {
-        return when {
-            todoList.isEmpty() && doneList.isEmpty() -> TasksState.NoTask
-            todoList.isNotEmpty() && doneList.isNotEmpty() -> TasksState.TodoAndDoneExist(
-                todoList,
-                doneList
-            )
-
-            todoList.isNotEmpty() -> TasksState.OnlyTodoExist(todoList)
-            else -> TasksState.OnlyDoneExist(doneList)
+    override fun showDeleteTaskDialog(task: Task) {
+        viewModelScope.launch {
+            _uiEffect.emit(TasksEffect.ShowDeleteTaskScreen(taskToBeDeleted = task))
         }
     }
 }

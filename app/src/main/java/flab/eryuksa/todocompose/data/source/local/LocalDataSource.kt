@@ -8,4 +8,5 @@ interface LocalDataSource {
     fun getAllTaskStream(): Flow<List<Task>>
     suspend fun addTask(newTask: Task)
     suspend fun updateTask(modifiedTask: Task)
+    suspend fun deleteTask(task: Task)
 }

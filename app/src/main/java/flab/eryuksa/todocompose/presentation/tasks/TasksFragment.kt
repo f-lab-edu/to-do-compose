@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -13,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import flab.eryuksa.todocompose.R
+import flab.eryuksa.todocompose.presentation.deletetask.viewmodel.DeleteTaskViewModel
 import flab.eryuksa.todocompose.presentation.tasks.ui.TasksScreen
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.TasksViewModel
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksEffect
@@ -53,8 +55,15 @@ class TasksFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.uiEffect.collectLatest { effect ->
-                    if (effect is TasksEffect.ShowAddTodoScreen) {
-                        navController.navigate(R.id.addTodoDialogFragment)
+                    when (effect) {
+                        is TasksEffect.ShowAddTodoScreen ->
+                            navController.navigate(R.id.actionTasksToAddTodoDialog)
+                        is TasksEffect.ShowDeleteTaskScreen -> {
+                            val bundle = bundleOf(
+                                DeleteTaskViewModel.TASK_TO_BE_DELETED_KEY to effect.taskToBeDeleted
+                            )
+                            navController.navigate(R.id.actionTasksToDeleteTaskDialog, bundle)
+                        }
                     }
                 }
             }

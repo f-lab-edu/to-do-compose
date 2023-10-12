@@ -1,4 +1,4 @@
-package flab.eryuksa.todocompose.presentation.addtodo
+package flab.eryuksa.todocompose.presentation.deletetask
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,17 +11,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import flab.eryuksa.todocompose.presentation.addtodo.ui.AddTodoDialog
-import flab.eryuksa.todocompose.presentation.addtodo.viewmodel.AddTodoViewModel
-import flab.eryuksa.todocompose.presentation.addtodo.viewmodel.output.AddTodoEffect
+import flab.eryuksa.todocompose.presentation.deletetask.ui.DeleteTaskDialog
+import flab.eryuksa.todocompose.presentation.deletetask.viewmodel.DeleteTaskViewModel
 import flab.eryuksa.todocompose.presentation.theme.ToDoComposeTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class AddTodoDialogFragment : DialogFragment() {
+class DeleteTaskDialogFragment : DialogFragment() {
 
-    private val viewModel: AddTodoViewModel by viewModels()
+    private val viewModel: DeleteTaskViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,9 +30,10 @@ class AddTodoDialogFragment : DialogFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 ToDoComposeTheme {
-                    AddTodoDialog(
-                        input = viewModel,
-                        output = viewModel
+                    DeleteTaskDialog(
+                        onDismiss = viewModel::cancelDeletingTask,
+                        onConfirm = viewModel::deleteTask,
+                        taskTitle = viewModel.task.title
                     )
                 }
             }
@@ -48,10 +48,8 @@ class AddTodoDialogFragment : DialogFragment() {
     private fun observeUiEffect() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.uiEffect.collectLatest { effect ->
-                    if (effect is AddTodoEffect.DismissAddTodoScreen) {
-                        dismiss()
-                    }
+                viewModel.uiEffect.collectLatest {
+                    dismiss()
                 }
             }
         }
