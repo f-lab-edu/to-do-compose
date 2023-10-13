@@ -38,7 +38,7 @@ class DefaultTaskRepository @Inject constructor(
         localDataSource.addTask(
             Task(
                 title = title,
-                details = details,
+                memo = details,
                 isDone = false
             )
         )

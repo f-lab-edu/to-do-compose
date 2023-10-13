@@ -8,7 +8,7 @@ import java.util.UUID
 @Entity(tableName = "task")
 data class Task(
     val title: String,
-    val details: String,
+    val memo: String,
     val isDone: Boolean,
     @PrimaryKey val id: String = UUID.randomUUID().toString()
 ) : Serializable

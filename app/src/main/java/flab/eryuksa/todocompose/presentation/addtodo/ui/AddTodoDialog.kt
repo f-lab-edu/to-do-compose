@@ -45,8 +45,8 @@ fun AddTodoDialog(input: AddTodoInput, output: AddTodoOutput) {
             color = Color.White
         ) {
             Column(modifier = Modifier.padding(Padding.LARGE)) {
-                TitleTextField(uiState.title, input::updateTitle)
-                DetailsTextField(
+                AddTodoTitleTextField(uiState.title, input::updateTitle)
+                AddTodoMemoTextField(
                     text = uiState.details,
                     onTextChange = input::updateDetails,
                     modifier = Modifier.weight(weight = 1f)
@@ -64,7 +64,7 @@ fun AddTodoDialog(input: AddTodoInput, output: AddTodoOutput) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TitleTextField(text: String, onTextChange: (String) -> Unit) {
+fun AddTodoTitleTextField(text: String, onTextChange: (String) -> Unit) {
     TextField(
         value = text,
         onValueChange = onTextChange,
@@ -79,7 +79,7 @@ fun TitleTextField(text: String, onTextChange: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailsTextField(
+fun AddTodoMemoTextField(
     text: String,
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -87,7 +87,7 @@ fun DetailsTextField(
     TextField(
         value = text,
         onValueChange = onTextChange,
-        placeholder = { Text(stringResource(R.string.details)) },
+        placeholder = { Text(stringResource(R.string.memo)) },
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = Padding.SMALL),
@@ -98,7 +98,7 @@ fun DetailsTextField(
 
 @Preview(heightDp = 720)
 @Composable
-fun AddTaskScreenPreview() {
+fun AddTodoScreenPreview() {
     Surface {
         val viewModel: AddTodoViewModel = viewModel()
         AddTodoDialog(viewModel, viewModel)

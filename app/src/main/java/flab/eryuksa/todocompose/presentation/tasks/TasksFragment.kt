@@ -57,12 +57,12 @@ class TasksFragment : Fragment() {
                 viewModel.uiEffect.collectLatest { effect ->
                     when (effect) {
                         is TasksEffect.ShowAddTodoScreen ->
-                            navController.navigate(R.id.actionTasksToAddTodoDialog)
+                            navController.navigate(R.id.actionTasksToAddTodo)
                         is TasksEffect.ShowDeleteTaskScreen -> {
                             val bundle = bundleOf(
                                 DeleteTaskViewModel.TASK_TO_BE_DELETED_KEY to effect.taskToBeDeleted
                             )
-                            navController.navigate(R.id.actionTasksToDeleteTaskDialog, bundle)
+                            navController.navigate(R.id.actionTasksToDeleteTask, bundle)
                         }
                     }
                 }
