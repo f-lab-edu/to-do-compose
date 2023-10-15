@@ -21,6 +21,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -28,23 +30,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import flab.eryuksa.todocompose.R
 import flab.eryuksa.todocompose.data.entity.Task
+import flab.eryuksa.todocompose.presentation.details.viewmodel.output.TaskDetailsState
 import flab.eryuksa.todocompose.presentation.theme.Padding
 import flab.eryuksa.todocompose.presentation.theme.ToDoComposeTheme
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskDetailsScreen(
-    task: Task,
+    taskDetailsState: StateFlow<TaskDetailsState>,
     onClickBackButton: () -> Unit,
-    onClickDeleteButton: (task: Task) -> Unit,
-    onClickCheckButton: (task: Task) -> Unit,
-    onTitleChange: (title: String) -> Unit,
-    onMemoChange: (memo: String) -> Unit
+    onClickDeleteButton: () -> Unit,
+    onClickCheckButton: () -> Unit,
+    onTitleChange: (newTitle: String) -> Unit,
+    onMemoChange: (newMemo: String) -> Unit
 ) {
+    val uiState by taskDetailsState.collectAsState()
+
     Scaffold(
         topBar = {
             TaskDetailsAppBar(
-                task = task,
+                task = uiState.task,
                 onClickBackButton = onClickBackButton,
                 onClickDeleteButton = onClickDeleteButton,
                 onClickCheckButton = onClickCheckButton
@@ -56,19 +63,21 @@ fun TaskDetailsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    top = paddingValue.calculateTopPadding().plus(Padding.LARGE),
+                    top = paddingValue
+                        .calculateTopPadding()
+                        .plus(Padding.LARGE),
                     start = Padding.LARGE,
                     end = Padding.LARGE,
                     bottom = Padding.LARGE
                 )
         ) {
             TaskDetailsTitleTextField(
-                title = task.title,
+                title = uiState.task.title,
                 onTitleChange = onTitleChange
             )
             Spacer(modifier = Modifier.height(Padding.LARGE))
             TaskDetailsMemoTextField(
-                memo = task.memo,
+                memo = uiState.task.memo,
                 onMemoChange = onMemoChange
             )
         }
@@ -80,8 +89,8 @@ fun TaskDetailsScreen(
 fun TaskDetailsAppBar(
     task: Task,
     onClickBackButton: () -> Unit,
-    onClickDeleteButton: (task: Task) -> Unit,
-    onClickCheckButton: (task: Task) -> Unit
+    onClickDeleteButton: () -> Unit,
+    onClickCheckButton: () -> Unit
 ) {
     TopAppBar(
         title = {},
@@ -100,13 +109,13 @@ fun TaskDetailsAppBar(
             }
         },
         actions = {
-            IconButton(onClick = { onClickDeleteButton(task) }) {
+            IconButton(onClick = onClickDeleteButton) {
                 Icon(
                     imageVector = Icons.Rounded.Delete,
                     contentDescription = stringResource(R.string.back_button_description)
                 )
             }
-            IconButton(onClick = { onClickCheckButton(task) }) {
+            IconButton(onClick = onClickCheckButton) {
                 Icon(
                     painter = if (task.isDone) {
                         painterResource(R.drawable.checked_circle_24dp)
@@ -167,7 +176,9 @@ fun TasksDetailsAppBarPreview() {
 fun TasksDetailsScreenPreview() {
     ToDoComposeTheme {
         TaskDetailsScreen(
-            task = Task("할 일 제목", "할 일 메모", isDone = true),
+            taskDetailsState = MutableStateFlow(
+                TaskDetailsState(Task("할 일 제목", "할 일 메모", isDone = true))
+            ),
             onClickBackButton = {},
             onClickDeleteButton = {},
             onClickCheckButton = {},

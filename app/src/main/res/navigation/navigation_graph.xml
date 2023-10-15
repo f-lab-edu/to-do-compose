@@ -10,12 +10,16 @@
         android:label="TasksFragment" >
 
         <action
-            android:id="@+id/actionTasksToAddTodoDialog"
+            android:id="@+id/actionTasksToAddTodo"
             app:destination="@id/addTodoDialogFragment" />
 
         <action
-            android:id="@+id/actionTasksToDeleteTaskDialog"
+            android:id="@+id/actionTasksToDeleteTask"
             app:destination="@id/deleteTaskDialogFragment" />
+
+        <action
+            android:id="@+id/actionTasksToTaskDetails"
+            app:destination="@id/taskDetailsFragment" />
     </fragment>
 
     <dialog
@@ -32,4 +36,18 @@
             android:name="taskToBeDeleted"
             app:argType="flab.eryuksa.todocompose.data.entity.Task" />
     </dialog>
+
+    <fragment
+        android:id="@+id/taskDetailsFragment"
+        android:name="flab.eryuksa.todocompose.presentation.details.TaskDetailsFragment"
+        android:label="TaskDetailsFragment" >
+
+        <argument
+            android:name="taskForDetails"
+            app:argType="flab.eryuksa.todocompose.data.entity.Task" />
+
+        <action
+            android:id="@+id/actionTaskDetailsToDeleteTask"
+            app:destination="@id/deleteTaskDialogFragment" />
+    </fragment>
 </navigation>

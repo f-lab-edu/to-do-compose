@@ -10,7 +10,6 @@ import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksEffect
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksOutput
 import flab.eryuksa.todocompose.presentation.tasks.viewmodel.output.TasksState
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -54,7 +53,13 @@ class TasksViewModel @Inject constructor(
 
     override fun showDeleteTaskDialog(task: Task) {
         viewModelScope.launch {
-            _uiEffect.emit(TasksEffect.ShowDeleteTaskScreen(taskToBeDeleted = task))
+            _uiEffect.emit(TasksEffect.ShowDeleteTaskDialog(taskToBeDeleted = task))
+        }
+    }
+
+    override fun showTaskDetailsScreen(task: Task) {
+        viewModelScope.launch {
+            _uiEffect.emit(TasksEffect.ShowTaskDetailsScreen(task))
         }
     }
 }
