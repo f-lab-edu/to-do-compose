@@ -10,9 +10,12 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import flab.eryuksa.todocompose.R
 import flab.eryuksa.todocompose.presentation.deletetask.ui.DeleteTaskDialog
 import flab.eryuksa.todocompose.presentation.deletetask.viewmodel.DeleteTaskViewModel
+import flab.eryuksa.todocompose.presentation.deletetask.viewmodel.output.DeleteTaskEffect
 import flab.eryuksa.todocompose.presentation.theme.ToDoComposeTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -46,10 +49,16 @@ class DeleteTaskDialogFragment : DialogFragment() {
     }
 
     private fun observeUiEffect() {
+        val navController = findNavController()
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.uiEffect.collectLatest {
-                    dismiss()
+                viewModel.uiEffect.collectLatest { effect ->
+                    when (effect) {
+                        is DeleteTaskEffect.DismissDeleteTaskScreen -> dismiss()
+                        is DeleteTaskEffect.GoBackToTasksScreen ->
+                            navController.popBackStack(R.id.tasksFragment, false)
+                    }
                 }
             }
         }
