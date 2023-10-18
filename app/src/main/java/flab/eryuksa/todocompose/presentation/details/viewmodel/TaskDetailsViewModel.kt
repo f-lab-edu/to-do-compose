@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import flab.eryuksa.todocompose.data.entity.Task
+import flab.eryuksa.todocompose.data.repository.taskdetails.TaskDetailsRepository
 import flab.eryuksa.todocompose.presentation.details.viewmodel.input.TaskDetailsInput
 import flab.eryuksa.todocompose.presentation.details.viewmodel.output.TaskDetailsEffect
 import flab.eryuksa.todocompose.presentation.details.viewmodel.output.TaskDetailsOutput
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TaskDetailsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val repository: TaskDetailsRepository
 ) : ViewModel(), TaskDetailsInput, TaskDetailsOutput {
 
     private val _uiState = MutableStateFlow(
@@ -31,20 +33,27 @@ class TaskDetailsViewModel @Inject constructor(
     override val uiEffect: SharedFlow<TaskDetailsEffect>
         get() = _uiEffect
 
-    override fun goBack() {
+    override fun updateTaskAndGoToBackScreen() {
         viewModelScope.launch {
-            _uiEffect.emit(TaskDetailsEffect.GoBack)
+            repository.updateTaskToModifiedTask(_uiState.value.task)
+            _uiEffect.emit(TaskDetailsEffect.GoBackScreen)
         }
     }
 
-    override fun deleteTask() {
+    override fun showDeleteTaskDialog() {
+        viewModelScope.launch {
+            _uiEffect.emit(TaskDetailsEffect.ShowDeleteTaskDialog(_uiState.value.task))
+        }
     }
 
     override fun changeTaskDoneState() {
-        val task = _uiState.value.task
-        _uiState.value = TaskDetailsState(
-            task.copy(isDone = task.isDone.not())
-        )
+        val modifiedTask = with(_uiState.value.task) {
+            copy(isDone = this.isDone.not())
+        }
+        viewModelScope.launch {
+            repository.updateTaskToModifiedTask(modifiedTask)
+            _uiState.value = TaskDetailsState(modifiedTask)
+        }
     }
 
     override fun updateTitle(newTitle: String) {

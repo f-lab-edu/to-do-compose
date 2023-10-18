@@ -29,7 +29,7 @@ import flab.eryuksa.todocompose.presentation.addtodo.viewmodel.input.AddTodoInpu
 import flab.eryuksa.todocompose.presentation.addtodo.viewmodel.output.AddTodoOutput
 import flab.eryuksa.todocompose.presentation.components.CancelAndConfirmButtons
 import flab.eryuksa.todocompose.presentation.theme.ADD_TODO_DIALOG_HEIGHT_FRACTION
-import flab.eryuksa.todocompose.presentation.theme.DIALOG_ROUNDED_CORNER_SIZE
+import flab.eryuksa.todocompose.presentation.theme.DIALOG_ROUNDED_CORNER_SIZE_DP
 import flab.eryuksa.todocompose.presentation.theme.Padding
 
 @Composable
@@ -41,7 +41,7 @@ fun AddTodoDialog(input: AddTodoInput, output: AddTodoOutput) {
     Dialog(input::dismissScreen) {
         Surface(
             modifier = Modifier.height(dialogHeightDp),
-            shape = RoundedCornerShape(size = DIALOG_ROUNDED_CORNER_SIZE.dp),
+            shape = RoundedCornerShape(size = DIALOG_ROUNDED_CORNER_SIZE_DP.dp),
             color = Color.White
         ) {
             Column(modifier = Modifier.padding(Padding.LARGE)) {

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -37,11 +38,7 @@ class TaskDetailsFragment : Fragment() {
                 ToDoComposeTheme() {
                     TaskDetailsScreen(
                         taskDetailsState = viewModel.uiState,
-                        onClickBackButton = viewModel::goBack,
-                        onClickDeleteButton = viewModel::deleteTask,
-                        onClickCheckButton = viewModel::changeTaskDoneState,
-                        onTitleChange = viewModel::updateTitle,
-                        onMemoChange = viewModel::updateMemo
+                        input = viewModel
                     )
                 }
             }
@@ -51,6 +48,7 @@ class TaskDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observeUiEffect()
+        addOnBackPressedCallback()
     }
 
     private fun observeUiEffect() {
@@ -60,7 +58,7 @@ class TaskDetailsFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.uiEffect.collectLatest { effect ->
                     when (effect) {
-                        is TaskDetailsEffect.GoBack -> navController.navigateUp()
+                        is TaskDetailsEffect.GoBackScreen -> navController.navigateUp()
                         is TaskDetailsEffect.ShowDeleteTaskDialog -> {
                             val bundle = bundleOf(
                                 DeleteTaskViewModel.TASK_TO_BE_DELETED_KEY to effect.taskToBeDeleted
@@ -70,6 +68,12 @@ class TaskDetailsFragment : Fragment() {
                     }
                 }
             }
+        }
+    }
+
+    private fun addOnBackPressedCallback() {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            viewModel.updateTaskAndGoToBackScreen()
         }
     }
 }

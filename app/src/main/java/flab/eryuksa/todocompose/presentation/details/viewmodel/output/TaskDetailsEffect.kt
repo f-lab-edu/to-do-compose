@@ -4,6 +4,6 @@ import flab.eryuksa.todocompose.data.entity.Task
 
 sealed interface TaskDetailsEffect {
 
-    object GoBack : TaskDetailsEffect
+    object GoBackScreen : TaskDetailsEffect
     data class ShowDeleteTaskDialog(val taskToBeDeleted: Task) : TaskDetailsEffect
 }

@@ -6,6 +6,7 @@
     <string name="back_button_description">뒤로 가기</string>
     <string name="title">제목</string>
     <string name="memo">메모</string>
+    <string name="save">저장</string>
 
     <!--TasksScreen-->
     <string name="add_task_please">오늘 할 일은 무엇인가요?</string>
@@ -22,5 +23,6 @@
     <string name="add">추가</string>
 
     <!--TaskDetails-->
-
+    <string name="make_task_done">할 일을 끝낸 일 상태로 변경</string>
+    <string name="make_task_todo">끝낸 일을 할 일 상태로 변경</string>
 </resources>

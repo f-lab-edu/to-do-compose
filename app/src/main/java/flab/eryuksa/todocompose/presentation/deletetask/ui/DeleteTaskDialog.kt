@@ -18,7 +18,7 @@ import androidx.compose.ui.window.Dialog
 import flab.eryuksa.todocompose.R
 import flab.eryuksa.todocompose.presentation.components.CancelAndConfirmButtons
 import flab.eryuksa.todocompose.presentation.theme.DELETE_TASK_DIALOG_WIDTH_FRACTION
-import flab.eryuksa.todocompose.presentation.theme.DIALOG_ROUNDED_CORNER_SIZE
+import flab.eryuksa.todocompose.presentation.theme.DIALOG_ROUNDED_CORNER_SIZE_DP
 import flab.eryuksa.todocompose.presentation.theme.Padding
 
 @Composable
@@ -33,7 +33,7 @@ fun DeleteTaskDialog(
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             modifier = Modifier.width(dialogWidthDp),
-            shape = RoundedCornerShape(size = DIALOG_ROUNDED_CORNER_SIZE.dp),
+            shape = RoundedCornerShape(size = DIALOG_ROUNDED_CORNER_SIZE_DP.dp),
             color = Color.White
         ) {
             Column(modifier = Modifier.padding(Padding.LARGE)) {
