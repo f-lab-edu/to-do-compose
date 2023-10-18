@@ -4,14 +4,32 @@
     android:id="@+id/navigation_graph"
     app:startDestination="@id/tasksFragment">
 
-
     <fragment
         android:id="@+id/tasksFragment"
         android:name="flab.eryuksa.todocompose.presentation.tasks.TasksFragment"
-        android:label="TasksFragment" />
+        android:label="TasksFragment" >
+
+        <action
+            android:id="@+id/actionTasksToAddTodoDialog"
+            app:destination="@id/addTodoDialogFragment" />
+
+        <action
+            android:id="@+id/actionTasksToDeleteTaskDialog"
+            app:destination="@id/deleteTaskDialogFragment" />
+    </fragment>
 
     <dialog
         android:id="@+id/addTodoDialogFragment"
         android:name="flab.eryuksa.todocompose.presentation.addtodo.AddTodoDialogFragment"
         android:label="AddTodoDialogFragment" />
+
+    <dialog
+        android:id="@+id/deleteTaskDialogFragment"
+        android:name="flab.eryuksa.todocompose.presentation.deletetask.DeleteTaskDialogFragment"
+        android:label="DeleteTaskDialogFragment" >
+
+        <argument
+            android:name="taskToBeDeleted"
+            app:argType="flab.eryuksa.todocompose.data.entity.Task" />
+    </dialog>
 </navigation>

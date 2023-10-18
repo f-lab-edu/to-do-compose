@@ -1,14 +1,12 @@
 package flab.eryuksa.todocompose.presentation.addtodo.ui
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -29,22 +27,21 @@ import flab.eryuksa.todocompose.R
 import flab.eryuksa.todocompose.presentation.addtodo.viewmodel.AddTodoViewModel
 import flab.eryuksa.todocompose.presentation.addtodo.viewmodel.input.AddTodoInput
 import flab.eryuksa.todocompose.presentation.addtodo.viewmodel.output.AddTodoOutput
-import flab.eryuksa.todocompose.presentation.components.ResultButton
-import flab.eryuksa.todocompose.presentation.theme.DIALOG_HEIGHT_FRACTION
+import flab.eryuksa.todocompose.presentation.components.CancelAndConfirmButtons
+import flab.eryuksa.todocompose.presentation.theme.ADD_TODO_DIALOG_HEIGHT_FRACTION
+import flab.eryuksa.todocompose.presentation.theme.DIALOG_ROUNDED_CORNER_SIZE
 import flab.eryuksa.todocompose.presentation.theme.Padding
 
 @Composable
-fun AddTodoScreen(input: AddTodoInput, output: AddTodoOutput) {
+fun AddTodoDialog(input: AddTodoInput, output: AddTodoOutput) {
     val dialogHeightDp =
-        (LocalConfiguration.current.screenHeightDp * DIALOG_HEIGHT_FRACTION).toInt().dp
+        (LocalConfiguration.current.screenHeightDp * ADD_TODO_DIALOG_HEIGHT_FRACTION).toInt().dp
     val uiState by output.uiState.collectAsState()
 
     Dialog(input::dismissScreen) {
         Surface(
-            modifier = Modifier
-                .height(dialogHeightDp)
-                .padding(Padding.LARGE),
-            shape = RoundedCornerShape(size = Padding.MEDIUM),
+            modifier = Modifier.height(dialogHeightDp),
+            shape = RoundedCornerShape(size = DIALOG_ROUNDED_CORNER_SIZE.dp),
             color = Color.White
         ) {
             Column(modifier = Modifier.padding(Padding.LARGE)) {
@@ -54,9 +51,11 @@ fun AddTodoScreen(input: AddTodoInput, output: AddTodoOutput) {
                     onTextChange = input::updateDetails,
                     modifier = Modifier.weight(weight = 1f)
                 )
-                CancelAndAddButtons(
+                CancelAndConfirmButtons(
+                    cancelText = stringResource(R.string.cancel),
+                    confirmText = stringResource(R.string.add),
                     onClickCancel = input::dismissScreen,
-                    onClickAdd = input::addTodo
+                    onClickConfirm = input::addTodo
                 )
             }
         }
@@ -73,7 +72,8 @@ fun TitleTextField(text: String, onTextChange: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth(),
         singleLine = true,
-        colors = TextFieldDefaults.textFieldColors(containerColor = Color.White)
+        colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
+        textStyle = MaterialTheme.typography.titleMedium
     )
 }
 
@@ -91,48 +91,16 @@ fun DetailsTextField(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = Padding.SMALL),
-        textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
-        colors = TextFieldDefaults.textFieldColors(containerColor = Color.White)
+        textStyle = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Start),
+        colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
     )
 }
 
-@Composable
-fun CancelAndAddButtons(
-    onClickCancel: () -> Unit,
-    onClickAdd: () -> Unit
-) {
-    Row(modifier = Modifier.padding(top = Padding.MEDIUM)) {
-        CancelButton(onClickCancel)
-        AddButton(onClickAdd)
-    }
-}
-
-@Composable
-fun RowScope.CancelButton(onClickCancel: () -> Unit) {
-    Row(modifier = Modifier.weight(1f)) {
-        ResultButton(
-            text = stringResource(R.string.cancel),
-            onClick = onClickCancel,
-        )
-    }
-}
-
-@Composable
-fun RowScope.AddButton(onClickAdd: () -> Unit) {
-    Row(modifier = Modifier.weight(1f)) {
-        ResultButton(
-            text = stringResource(R.string.add),
-            onClick = onClickAdd,
-        )
-    }
-}
-
-
 @Preview(heightDp = 720)
 @Composable
-fun AddTaskDialogPreview() {
+fun AddTaskScreenPreview() {
     Surface {
         val viewModel: AddTodoViewModel = viewModel()
-        AddTodoScreen(viewModel, viewModel)
+        AddTodoDialog(viewModel, viewModel)
     }
 }

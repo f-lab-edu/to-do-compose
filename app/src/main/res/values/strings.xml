@@ -1,11 +1,20 @@
 <resources>
     <string name="app_name">ToDoCompose</string>
+    <!--Common-->
+    <string name="yes">네</string>
+    <string name="no">아니요</string>
 
+    <!--TasksScreen-->
     <string name="add_task_please">오늘 할 일은 무엇인가요?</string>
     <string name="todo_task">할 일</string>
     <string name="done_task">끝낸 일</string>
-    <string name="add_task">할 일 추가</string>
+    <string name="add_task_button_description">할 일 추가하기</string>
+    <string name="delete_task_button_description">할 일 삭제하기</string>
 
+    <!--DeleteTaskDialog-->
+    <string name="delete_task_dialog_contents_text">\'%s\'를 삭제하시겠어요?</string>
+
+    <!--AddTodoScreen-->
     <string name="title">제목</string>
     <string name="details">세부 사항</string>
     <string name="cancel">취소</string>
