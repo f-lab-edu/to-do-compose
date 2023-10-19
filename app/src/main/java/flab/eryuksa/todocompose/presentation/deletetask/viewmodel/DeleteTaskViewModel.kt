@@ -35,7 +35,7 @@ class DeleteTaskViewModel @Inject constructor(
     override fun deleteTask() {
         viewModelScope.launch {
             repository.deleteTask(task)
-            _uiEffect.emit(DeleteTaskEffect.DismissDeleteTaskScreen)
+            _uiEffect.emit(DeleteTaskEffect.GoBackToTasksScreen)
         }
     }
 

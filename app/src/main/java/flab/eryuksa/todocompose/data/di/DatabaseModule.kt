@@ -24,7 +24,8 @@ object DatabaseModule {
             context,
             TaskDatabase::class.java,
             TASK_DATABASE_NAME
-        ).build()
+        ).fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides

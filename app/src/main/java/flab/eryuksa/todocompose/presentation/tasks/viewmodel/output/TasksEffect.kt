@@ -5,5 +5,6 @@ import flab.eryuksa.todocompose.data.entity.Task
 sealed interface TasksEffect {
 
     object ShowAddTodoScreen : TasksEffect
-    data class ShowDeleteTaskScreen(val taskToBeDeleted: Task) : TasksEffect
+    data class ShowDeleteTaskDialog(val taskToBeDeleted: Task) : TasksEffect
+    data class ShowTaskDetailsScreen(val task: Task) : TasksEffect
 }

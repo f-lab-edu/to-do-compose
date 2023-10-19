@@ -1,6 +1,7 @@
 package flab.eryuksa.todocompose.presentation.tasks.ui
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -68,11 +69,13 @@ fun TasksScreen(input: TasksInput, output: TasksOutput) {
         ) {
             TodoList(
                 todoList = uiState.todoList,
+                onClickTaskItem = input::showTaskDetailsScreen,
                 onTaskCheckedChange = input::changeCheckedState,
                 onClickDeleteTask = input::showDeleteTaskDialog
             )
             DoneList(
                 doneList = uiState.doneList,
+                onClickTaskItem = input::showTaskDetailsScreen,
                 onTaskCheckedChange = input::changeCheckedState,
                 onClickDeleteTask = input::showDeleteTaskDialog
             )
@@ -83,6 +86,7 @@ fun TasksScreen(input: TasksInput, output: TasksOutput) {
 @Composable
 fun TaskItem(
     task: Task,
+    onClickTaskItem: (Task) -> Unit,
     onTaskCheckedChange: (Task) -> Unit,
     onClickDeleteTask: (Task) -> Unit
 ) {
@@ -94,6 +98,7 @@ fun TaskItem(
                 horizontal = Padding.MEDIUM,
                 vertical = Padding.MEDIUM
             )
+            .clickable(onClick = { onClickTaskItem(task) })
     ) {
         Checkbox(
             checked = task.isDone,
@@ -124,6 +129,7 @@ fun DeleteTaskButton(onClick: () -> Unit) {
 @Composable
 fun TodoList(
     todoList: List<Task>,
+    onClickTaskItem: (Task) -> Unit,
     onTaskCheckedChange: (Task) -> Unit,
     onClickDeleteTask: (Task) -> Unit
 ) {
@@ -131,6 +137,7 @@ fun TodoList(
         TaskList(
             categoryTitle = stringResource(R.string.todo_task),
             taskList = todoList,
+            onClickTaskItem = onClickTaskItem,
             onTaskCheckedChange = onTaskCheckedChange,
             onClickDeleteTask = onClickDeleteTask
         )
@@ -141,6 +148,7 @@ fun TodoList(
 @Composable
 fun DoneList(
     doneList: List<Task>,
+    onClickTaskItem: (Task) -> Unit,
     onTaskCheckedChange: (Task) -> Unit,
     onClickDeleteTask: (Task) -> Unit
 ) {
@@ -148,6 +156,7 @@ fun DoneList(
         TaskList(
             categoryTitle = stringResource(R.string.done_task),
             taskList = doneList,
+            onClickTaskItem = onClickTaskItem,
             onTaskCheckedChange = onTaskCheckedChange,
             onClickDeleteTask = onClickDeleteTask
         )
@@ -158,6 +167,7 @@ fun DoneList(
 fun TaskList(
     categoryTitle: String,
     taskList: List<Task>,
+    onClickTaskItem: (Task) -> Unit,
     onTaskCheckedChange: (Task) -> Unit,
     onClickDeleteTask: (Task) -> Unit
 ) {
@@ -170,6 +180,7 @@ fun TaskList(
             items(taskList) { task ->
                 TaskItem(
                     task = task,
+                    onClickTaskItem = onClickTaskItem,
                     onTaskCheckedChange = onTaskCheckedChange,
                     onClickDeleteTask = onClickDeleteTask
                 )
@@ -210,6 +221,7 @@ fun TaskComposablePreview() {
         ) {
             TaskItem(
                 task = Task("할일", "설명", true),
+                onClickTaskItem = {},
                 onTaskCheckedChange = {},
                 onClickDeleteTask = {}
             )
@@ -230,6 +242,7 @@ fun TaskListPreview() {
                     Task("할일1", "", false),
                     Task("할일2", "", false)
                 ),
+                onClickTaskItem = {},
                 onTaskCheckedChange = {},
                 onClickDeleteTask = {}
             )

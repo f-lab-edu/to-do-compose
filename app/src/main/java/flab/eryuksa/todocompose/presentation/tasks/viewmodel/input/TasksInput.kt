@@ -7,4 +7,5 @@ interface TasksInput {
     fun showAddTaskScreen()
     fun changeCheckedState(task: Task)
     fun showDeleteTaskDialog(task: Task)
+    fun showTaskDetailsScreen(task: Task)
 }
